@@ -38,10 +38,8 @@ The application gives solution to the problem described above by the following s
         contains information on the project, the employee assigned to it and information about the duration the employee has worked
         on the project. The assignments are sorted into groups based on their associated project.
 	4. The application processes the sorted data and creates pairs of employees who have worked together on a common project.
-	5. The application merges all pairs that have the same set of employees in them. Every pair contains information about the 
-        sum of the days the two employees have worked on a same project together.
-	6. Sorts the pairs in a descending order based on the sum of the days they have worked together on all projects.
-	7. Prints the information about the pair that have worked longest together.
+	5. Sorts the pairs in a descending order based on the sum of the days they have worked together on all projects.
+	6. Prints the information about the pair that have worked longest together.
 
 **Algorithm:**
 
@@ -55,11 +53,7 @@ The application gives solution to the problem described above by the following s
      added to the assignment, otherwise the assignment is added as a new value of the entry; 
     - Passes through all map entries and checks if there is an overlap in work periods of the different employees that have worked
      on the same project. If an overlap is found the application creates an Pair Object that contains information about two 
-     employees and their collaboration /projectID, period they have worked together on the project/. The method returns a List<Pair>;
-    - Merges the pairs that have the same set of employees in them. All the information from the merged pairs is added to the first
-     one and all others are removed. 
-     At the end every pair contains information about all the projects and the sum of the days the two employees have worked on 
-     together;
+     employees and their collaboration /projectID, period they have worked together on the project/. The method returns a Map<Integer,Pair>;
     - Sorts the pairs in a descending order based on the sum of the days they have worked together on all projects;
     - Prints the information about the pair that have worked longest together;
 
