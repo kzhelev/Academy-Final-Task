@@ -24,7 +24,8 @@ public class PairMerger implements Merger {
                 Pair firstPair = pairs.get(firstPairNumber);
                 Pair secondPair = pairs.get(secondPairNumber);
 
-                if (firstPair.equals(secondPair)) {
+                if (firstPair.equals(secondPair
+                )) {
 
                     String secondPairProjectID = secondPair.getInfoProjectID()[0];
                     long secondPairPeriod = secondPair.getCollaborationInfo().get(secondPairProjectID);

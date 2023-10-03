@@ -23,23 +23,21 @@ public class Employee implements Comparable<Employee> {
     @Override
     public boolean equals(Object anObject) {
 
-        Employee employee;
-
-        if (anObject instanceof Employee) {
-            employee = (Employee) anObject;
-        } else {
-            return false;
-        }
-
         if (this == anObject) {
             return true;
         }
 
-        return compareTo(employee) == 0;
+        if (!(anObject instanceof Employee)) {
+            return false;
+        }
+
+        Employee employee = (Employee) anObject;
+
+        return employeeID.equals(employee.employeeID);
     }
     
     @Override
     public int hashCode() {
-        return 31 * employeeID.hashCode();
+        return Integer.parseInt(employeeID);
     }
 }

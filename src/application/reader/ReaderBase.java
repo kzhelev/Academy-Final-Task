@@ -2,7 +2,6 @@ package application.reader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -28,10 +27,15 @@ public class ReaderBase implements Reader{
             return scanner;
         } catch (FileNotFoundException e) {
 
-            String[] fileInfo = Arrays.stream(filePath.split("\\\\"))
-                    .filter(element -> element.matches("^[A-Za-z]+.[a-z]+$")).toArray(String[]::new);
+            String[] fileInfo;
 
-            throw new RuntimeException(String.format("The file \"%s\" is not found!", fileInfo[0].toUpperCase()));
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                fileInfo = filePath.split("\\\\");
+            } else {
+                fileInfo = filePath.split("/");
+            }
+
+            throw new RuntimeException(String.format("The file \"%s\" is not found!", fileInfo[fileInfo.length-1]));
         }
     }
 

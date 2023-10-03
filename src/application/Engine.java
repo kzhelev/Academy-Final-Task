@@ -7,17 +7,18 @@ import application.assignmentdatahandler.overlapcalculator.SimpleCalculator;
 import application.assignmentdatahandler.overlapfinder.OverlapFinder;
 import application.assignmentdatahandler.overlapfinder.SimpleOverlapFinder;
 import application.comparators.PairComparator;
+import application.customexceptions.ParseException;
 import application.initialdatahandler.AssignmentCreator;
 import application.initialdatahandler.InitialDataHandler;
 import application.initialdatahandler.assignmentmanager.AssignmentManager;
 import application.initialdatahandler.assignmentmanager.SimpleAssignmentManager;
 import application.mainclasses.Assignment;
 import application.mainclasses.Pair;
-import application.merger.Merger;
-import application.merger.PairMerger;
 import application.reader.Reader;
 import application.reader.ReaderDefiner.ReaderDefiner;
 
+import java.lang.reflect.Parameter;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.zip.DataFormatException;
@@ -34,8 +35,7 @@ public class Engine {
     private InitialDataHandler initialDataHandler;
     private Map<String, Assignment> assignments;
     private AssignmentDataHandler assignmentDataHandler;
-    private List<Pair> pairs;
-    private Merger pairMerger;
+    private Map<Integer, Pair> pairs;
     private Comparator<Pair> pairComparator;
     private AssignmentManager assignmentManager;
     private ReaderDefiner readerDefiner;
@@ -52,9 +52,8 @@ public class Engine {
         this.overlapCalculator = new SimpleCalculator();
         this.overlapFinder = new SimpleOverlapFinder(overlapCalculator);
         this.assignmentDataHandler = new CollaborationPairCreator(overlapFinder);
-        this.pairs = new ArrayList<>();
-        this.pairMerger = new PairMerger();
         this.pairComparator = new PairComparator();
+        this.pairs = new HashMap<>();
         this.assignmentManager = new SimpleAssignmentManager();
     }
 
@@ -94,28 +93,32 @@ public class Engine {
 
         // Reads the file line by line and with the information from every line creates an Assignment object that adds to
         // a Map of assignments.
+
         createListOfAssignmentsFromFileInfo();
 
-        // Takes the assignments, analise the data from them and creates a list of pairs.
+        // Takes the assignments, analise the data from them and creates a HashMap of pairs.
         pairs = assignmentDataHandler.parsePair(assignments);
 
-        //Merges the pairs that have the same set of employees in them.
-        pairs = pairMerger.merge(pairs);
+        List<Pair> sortedPairs = new ArrayList<>(pairs.values());
+        sortedPairs.sort(new PairComparator());
 
-        // Sorts the list in descending order based on the total amount of days the employees of the Pair have worked together.
-        pairs.sort(pairComparator);
-
-        printLongestWorkingTogetherPair();
+        printLongestWorkingTogetherPairs(sortedPairs);
     }
 
     private void createListOfAssignmentsFromFileInfo() {
+
+        int rowNumber = 0;
+
         while (reader.hasNextLine()) {
 
             Assignment assignment = null;
 
             try {
-                assignment = initialDataHandler.parseAssignment(reader.nextLine());
-            } catch (DataFormatException | DateTimeParseException e) {
+                rowNumber++;
+                assignment = initialDataHandler.parseAssignment(reader.nextLine(), rowNumber);
+            } catch (DataFormatException | DateTimeParseException | ParseException e) {
+                System.out.println(e.getMessage());
+                System.out.println("Please try again after fixing the problem or use a different file!");
                 assignments.clear();
                 setReader();
                 continue;
@@ -127,8 +130,30 @@ public class Engine {
         reader.close();
     }
 
-    private void printLongestWorkingTogetherPair() {
+    private void printLongestWorkingTogetherPairs(List<Pair> sortedPairs) {
 
-            System.out.println(pairs.get(0));
+        if (sortedPairs.size() == 0){
+            System.out.println("No pairs found!");
+            return;
+        }
+
+        Pair prevPair = null;
+
+        for (Pair pair : sortedPairs) {
+            if (prevPair == null) {
+                System.out.println("Employees who have worked together on common projects for the longest period:\n");
+                System.out.println(pair);
+            } else if (calculate(pair) == calculate(prevPair)){
+                System.out.println(pair);
+            } else {
+                break;
+            }
+
+            prevPair = pair;
+        }
+    }
+
+    private long calculate(Pair pair) {
+        return pair.getCollaborationInfo().values().stream().mapToLong(e -> e).sum();
     }
 }

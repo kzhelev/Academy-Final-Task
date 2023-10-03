@@ -1,22 +1,24 @@
 package application.assignmentdatahandler;
 
 import application.assignmentdatahandler.overlapfinder.OverlapFinder;
+import application.comparators.PairComparator;
 import application.mainclasses.Assignment;
 import application.mainclasses.Employee;
 import application.mainclasses.Pair;
 
+import java.time.Instant;
 import java.util.*;
 
 public class CollaborationPairCreator implements AssignmentDataHandler {
 
-    private List<Pair> pairs;
+    private Map<Integer,Pair> pairs;
     private Set<List<Assignment>> assignmentPairs;
     private OverlapFinder overlapFinder;
 
 
     public CollaborationPairCreator(OverlapFinder overlapFinder) {
 
-        this.pairs = new ArrayList<>();
+        this.pairs = new HashMap<>();
         this.assignmentPairs = new HashSet<>();
         this.overlapFinder = overlapFinder;
     }
@@ -30,9 +32,12 @@ public class CollaborationPairCreator implements AssignmentDataHandler {
      */
 
     @Override
-    public List<Pair> parsePair(Map<String, Assignment> assignments) {
+    public Map<Integer,Pair> parsePair(Map<String, Assignment> assignments) {
 
         long period = 0;
+
+        Instant currentInstant1 = Instant.now();
+        System.out.println(currentInstant1);
 
         for (Map.Entry<String, Assignment> entry : assignments.entrySet()) {
 
@@ -55,7 +60,7 @@ public class CollaborationPairCreator implements AssignmentDataHandler {
                     period = overlapFinder.check(period, entry, firstEmployee, secondEmployee, firstEmployeeWorkPeriods, secondEmployeeWorkPeriods);
 
                     if (period != 0) {
-                        addEmployeesPair(period, firstEmployee, secondEmployee, entry.getKey());
+                        addEmployeesPairInfo(period, firstEmployee, secondEmployee, entry.getKey());
                     }
                 }
             }
@@ -71,9 +76,18 @@ public class CollaborationPairCreator implements AssignmentDataHandler {
         return assignmentEntry.getValue().getAssignmentInfo().get(firstEmployee).size();
     }
 
-    private void addEmployeesPair(long period, Employee firstEmployee, Employee secondEmployee, String projectID) {
-        pairs.add(new Pair(firstEmployee, secondEmployee));
-        pairs.get(pairs.size() - 1).addCollaborationInfo(projectID, period);
+    private void addEmployeesPairInfo(long period, Employee firstEmployee, Employee secondEmployee, String projectID) {
+
+        Pair newPairToBeAdd = new Pair(firstEmployee, secondEmployee);
+
+        if (!pairs.containsKey(newPairToBeAdd.hashCode())) {
+            newPairToBeAdd.addCollaborationInfo(projectID, period);
+            pairs.put(newPairToBeAdd.hashCode(), newPairToBeAdd);
+        } else {
+            Pair existingPair = pairs.get(newPairToBeAdd.hashCode());
+
+            existingPair.addCollaborationInfo(projectID,period);
+        }
     }
 
 }

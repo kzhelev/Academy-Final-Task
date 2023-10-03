@@ -39,6 +39,10 @@ public class SimpleCalculator implements OverlapCalculator {
 
         long daysBetweenTheDates = laterStartingDate.until(earlieEndDate, ChronoUnit.DAYS);
 
+        //Adding the last day manually because The until method in Java, when used with ChronoUnit.DAYS, does not
+        // include the last day in the count of days between the dates.
+        daysBetweenTheDates++;
+
         long weeks = daysBetweenTheDates / 7;
 
         long remainder =  daysBetweenTheDates % 7;

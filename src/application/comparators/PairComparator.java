@@ -19,6 +19,7 @@ public class PairComparator implements Comparator<Pair> {
         return Long.compare(secondPairTotalPeriod, firstPairTotalPeriod);
     }
 
+
     private long calculate(Pair pair) {
         return pair.getCollaborationInfo().values().stream().mapToLong(e -> e).sum();
     }
